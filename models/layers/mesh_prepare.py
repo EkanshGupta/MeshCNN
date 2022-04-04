@@ -66,6 +66,7 @@ def fill_from_file(mesh, file):
     mesh.filename = ntpath.split(file)[1]
     mesh.fullfilename = file
     vs, faces = [], []
+    '''
     f = open(file)
     for line in f:
         line = line.strip()
@@ -81,6 +82,13 @@ def fill_from_file(mesh, file):
                                for ind in face_vertex_ids]
             faces.append(face_vertex_ids)
     f.close()
+    '''
+    with open(file, 'r') as f:
+        if 'OFF' != file.readline().strip():
+            raise('Not a valid OFF header')
+        n_verts, n_faces, __ = tuple([int(s) for s in file.readline().strip().split(' ')])
+        vs = [[float(s) for s in file.readline().strip().split(' ')] for i_vert in range(n_verts)]
+        faces = [[int(s) for s in file.readline().strip().split(' ')][1:] for i_face in range(n_faces)]
     vs = np.asarray(vs)
     faces = np.asarray(faces, dtype=int)
     assert np.logical_and(faces >= 0, faces < len(vs)).all()
