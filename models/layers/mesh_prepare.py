@@ -175,6 +175,7 @@ def compute_face_normals_and_areas(mesh, faces):
                             mesh.vs[faces[:, 2]] - mesh.vs[faces[:, 1]])
     face_areas = np.sqrt((face_normals ** 2).sum(axis=1))
     face_normals /= face_areas[:, np.newaxis]
+    print(face_areas)
     assert (not np.any(face_areas[:, np.newaxis] == 0)), 'has zero area face: %s' % mesh.filename
     face_areas *= 0.5
     return face_normals, face_areas
