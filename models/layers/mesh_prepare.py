@@ -92,6 +92,11 @@ def fill_from_file(mesh, file):
         faces = [[int(s) for s in f.readline().strip().split(' ')][1:] for i_face in range(n_faces)]
     vs = np.asarray(vs)
     faces = np.asarray(faces, dtype=int)
+    face_normals = np.cross(vs[faces[:, 1]] - vs[faces[:, 0]], vs[faces[:, 2]] - vs[faces[:, 1]])
+    face_areas = np.sqrt((face_normals ** 2).sum(axis=1))
+    remove_faces = [ind for ind, face_area in enumerate(face_areas) if face_area == 0]
+    faces = [face for ind,face in enumerate(faces) if ind not in remove_faces]
+    faces = np.asarray(faces, dtype=int)
     assert np.logical_and(faces >= 0, faces < len(vs)).all()
     return vs, faces
 
@@ -175,7 +180,6 @@ def compute_face_normals_and_areas(mesh, faces):
                             mesh.vs[faces[:, 2]] - mesh.vs[faces[:, 1]])
     face_areas = np.sqrt((face_normals ** 2).sum(axis=1))
     face_normals /= face_areas[:, np.newaxis]
-    print(face_areas)
     assert (not np.any(face_areas[:, np.newaxis] == 0)), 'has zero area face: %s' % mesh.filename
     face_areas *= 0.5
     return face_normals, face_areas
