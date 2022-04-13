@@ -22,7 +22,7 @@ cd MeshCNN
 ```
 - Install dependencies: [PyTorch](https://pytorch.org/) version 1.2. <i> Optional </i>: [tensorboardX](https://github.com/lanpa/tensorboardX) for training plots.
   - Via new conda environment `conda env create -f environment.yml` (creates an environment called meshcnn)
-  
+
 ### 3D Shape Classification on SHREC
 Download the dataset
 ```bash
@@ -48,11 +48,20 @@ bash ./scripts/shrec/view.sh
 
 An example of collapses for a mesh:
 
-<img src="/docs/imgs/T252.png" width="450px"/> 
+<img src="/docs/imgs/T252.png" width="450px"/>
 
-Note, you can also get pre-trained weights using bash ```./scripts/shrec/get_pretrained.sh```. 
+Note, you can also get pre-trained weights using bash ```./scripts/shrec/get_pretrained.sh```.
 
-In order to use the pre-trained weights, run ```train.sh``` which will compute and save the mean / standard deviation of the training data. 
+In order to use the pre-trained weights, run ```train.sh``` which will compute and save the mean / standard deviation of the training data.
+
+### If using the ModelNet dataset
+
+Extract the modelnet dataset in ```datasets/``` folder
+
+Run the following command:
+```python train.py --dataroot datasets/ModelNet10 --name ModelNet10 --ncf 64 128 256 256 --pool_res 600 450 300 180 --norm group --resblocks 1 --flip_edges 0.2 --slide_verts 0.2 --num_aug 20 --niter_decay 100```
+
+
 
 
 ### 3D Shape Segmentation on Humans
@@ -67,10 +76,10 @@ bash ./scripts/human_seg/view.sh
 
 Some segmentation result examples:
 
-<img src="/docs/imgs/shrec__10_0.png" height="150px"/> <img src="/docs/imgs/shrec__14_0.png" height="150px"/> <img src="/docs/imgs/shrec__2_0.png" height="150px"/> 
+<img src="/docs/imgs/shrec__10_0.png" height="150px"/> <img src="/docs/imgs/shrec__14_0.png" height="150px"/> <img src="/docs/imgs/shrec__2_0.png" height="150px"/>
 
 ### Additional Datasets
-The same scripts also exist for COSEG segmentation in ```scripts/coseg_seg``` and cubes classification in ```scripts/cubes```. 
+The same scripts also exist for COSEG segmentation in ```scripts/coseg_seg``` and cubes classification in ```scripts/cubes```.
 
 # More Info
 Check out the [MeshCNN wiki](https://github.com/ranahanocka/MeshCNN/wiki) for more details. Specifically, see info on [segmentation](https://github.com/ranahanocka/MeshCNN/wiki/Segmentation) and [data processing](https://github.com/ranahanocka/MeshCNN/wiki/Data-Processing).
@@ -97,6 +106,6 @@ If you find this code useful, please consider citing our paper
 
 # Questions / Issues
 If you have questions or issues running this code, please open an issue so we can know to fix it.
-  
+
 # Acknowledgments
 This code design was adopted from [pytorch-CycleGAN-and-pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix).
