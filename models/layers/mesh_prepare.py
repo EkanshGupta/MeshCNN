@@ -104,6 +104,10 @@ def fill_from_file(mesh, file):
     # if remove_faces==[]:
     #     print(file)
     faces = [face for ind,face in enumerate(faces) if ind not in remove_faces]
+    if remove_faces!=[]:
+        print(remove_faces)
+        # for i in remove_faces:
+        #     print(faces[i])
     faces = np.asarray(faces, dtype=int)
     assert np.logical_and(faces >= 0, faces < len(vs)).all()
     # print(vs.shape)
@@ -219,6 +223,13 @@ def slide_verts(mesh, prct):
     for vi in vids:
         if shifted < target:
             edges = mesh.ve[vi]
+            if edges ==[]:
+                print(len(mesh.ve))
+                print((mesh.ve[0]))
+                print((dihedral.shape))
+                print(len(mesh.vs))
+                print(mesh.filename)
+                print(mesh.edges_count)
             if min(dihedral[edges]) > 2.65:
                 edge = mesh.edges[np.random.choice(edges)]
                 vi_t = edge[1] if vi == edge[0] else edge[0]
