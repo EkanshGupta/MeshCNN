@@ -4,7 +4,11 @@ import ntpath
 
 
 def fill_mesh(mesh2fill, file: str, opt):
+    # print(file)
+    # print(opt.num_aug)
+    # print("abcd")
     load_path = get_mesh_path(file, opt.num_aug)
+    # print(load_path)
     if os.path.exists(load_path):
         mesh_data = np.load(load_path, encoding='latin1', allow_pickle=True)
     else:
@@ -66,7 +70,7 @@ def fill_from_file(mesh, file):
     mesh.filename = ntpath.split(file)[1]
     mesh.fullfilename = file
     vs, faces = [], []
-    print(file)
+    # print(file)
     '''
     f = open(file)
     for line in f:
@@ -95,9 +99,15 @@ def fill_from_file(mesh, file):
     face_normals = np.cross(vs[faces[:, 1]] - vs[faces[:, 0]], vs[faces[:, 2]] - vs[faces[:, 1]])
     face_areas = np.sqrt((face_normals ** 2).sum(axis=1))
     remove_faces = [ind for ind, face_area in enumerate(face_areas) if face_area == 0]
+    # print("fill from file function")
+    # print(remove_faces)
+    # if remove_faces==[]:
+    #     print(file)
     faces = [face for ind,face in enumerate(faces) if ind not in remove_faces]
     faces = np.asarray(faces, dtype=int)
     assert np.logical_and(faces >= 0, faces < len(vs)).all()
+    # print(vs.shape)
+    # print(faces.shape)
     return vs, faces
 
 

@@ -17,6 +17,11 @@ def is_mesh_file(filename):
 
 def pad(input_arr, target_length, val=0, dim=1):
     shp = input_arr.shape
+    # print(shp)
+    if dim==1:
+        if shp[dim]>target_length:
+            input_arr = input_arr[:,:target_length]
+            return input_arr
     npad = [(0, 0) for _ in range(len(shp))]
     npad[dim] = (0, target_length - shp[dim])
     return np.pad(input_arr, pad_width=npad, mode='constant', constant_values=val)
