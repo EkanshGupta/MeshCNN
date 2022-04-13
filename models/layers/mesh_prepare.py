@@ -1,6 +1,8 @@
 import numpy as np
 import os
 import ntpath
+import sys
+import random
 
 
 def fill_mesh(mesh2fill, file: str, opt):
@@ -66,6 +68,14 @@ def from_scratch(file, opt):
     mesh_data.features = extract_features(mesh_data)
     return mesh_data
 
+def get_face_areas_and_normals(vs, faces):
+    face_normals = np.cross(vs[faces[:, 1]] - vs[faces[:, 0]], vs[faces[:, 2]] - vs[faces[:, 1]])
+    face_areas = np.sqrt((face_normals ** 2).sum(axis=1))
+    return face_normals, face_areas
+
+def mul_fact():
+    return 1 if random.random() < 0.5 else -1
+
 def fill_from_file(mesh, file):
     mesh.filename = ntpath.split(file)[1]
     mesh.fullfilename = file
@@ -96,19 +106,43 @@ def fill_from_file(mesh, file):
         faces = [[int(s) for s in f.readline().strip().split(' ')][1:] for i_face in range(n_faces)]
     vs = np.asarray(vs)
     faces = np.asarray(faces, dtype=int)
-    face_normals = np.cross(vs[faces[:, 1]] - vs[faces[:, 0]], vs[faces[:, 2]] - vs[faces[:, 1]])
-    face_areas = np.sqrt((face_normals ** 2).sum(axis=1))
+    face_normals, face_areas = get_face_areas_and_normals(vs,faces)
     remove_faces = [ind for ind, face_area in enumerate(face_areas) if face_area == 0]
     # print("fill from file function")
     # print(remove_faces)
     # if remove_faces==[]:
     #     print(file)
-    faces = [face for ind,face in enumerate(faces) if ind not in remove_faces]
+    # faces = [face for ind, face in enumerate(faces) if ind not in remove_faces]
+    # faces = np.asarray(faces, dtype=int)
+    vs_to_perturb = []
     if remove_faces!=[]:
-        print(remove_faces)
-        # for i in remove_faces:
-        #     print(faces[i])
+         for i in remove_faces:
+            for j in faces[i]:
+                if j not in vs_to_perturb:
+                    vs_to_perturb.append(j)
+         for i in vs_to_perturb:
+            vs[i] = [a + mul_fact()*random.uniform(0.1, 0.2) for a in vs[i]]
+         vs = np.asarray(vs)
+         face_normals, face_areas = get_face_areas_and_normals(vs, faces)
+         remove_faces = [ind for ind, face_area in enumerate(face_areas) if face_area == 0]
+         if remove_faces!=[]:
+            print("ERROR: ZERO-AREA FACES")
+            sys.exit()
+
     faces = np.asarray(faces, dtype=int)
+    list_of_used_vertices = []
+    list_of_unused_vertices = []
+    for i in faces:
+        for j in i:
+            if j not in list_of_used_vertices:
+                list_of_used_vertices.append(j)
+    for i in range(vs.shape[0]):
+        if i not in list_of_used_vertices:
+            list_of_unused_vertices.append(i)
+    # sys.exit()
+
+    vs, faces = 
+
     assert np.logical_and(faces >= 0, faces < len(vs)).all()
     # print(vs.shape)
     # print(faces.shape)
