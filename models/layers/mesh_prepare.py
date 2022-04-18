@@ -147,17 +147,24 @@ def fill_from_file(mesh, file):
     face_normals, face_areas = get_face_areas_and_normals(vs,faces)
     remove_faces = [ind for ind, face_area in enumerate(face_areas) if face_area == 0]
 
-    vs = add_perturbation_to_vertices(remove_faces,vs,faces)
+    faces = [face for ind, face in enumerate(faces) if ind not in remove_faces]
+    faces = np.asarray(faces, dtype=int)
+
+    # vs = add_perturbation_to_vertices(remove_faces,vs,faces)
 
     list_of_used_vertices, list_of_unused_vertices = find_used_unused_vertices(vs,faces)
+    # print(list_of_unused_vertices)
 
     vs, faces = remap_vs_and_faces(list_of_unused_vertices,vs,faces)
 
     if len(list_of_unused_vertices)>0:
         # print(vs.shape)
         list_of_used_vertices, list_of_unused_vertices = find_used_unused_vertices(vs, faces)
+        # print(list_of_unused_vertices)
         if list_of_unused_vertices != []:
+            print("############################")
             print(list_of_unused_vertices)
+            print("############################")
             sys.exit()
 
 

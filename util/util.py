@@ -15,8 +15,9 @@ MESH_EXTENSIONS = [
 def is_mesh_file(filename):
     return any(filename.endswith(extension) for extension in MESH_EXTENSIONS)
 
-def pad(input_arr, target_length, val=0, dim=1):
+def pad(mesh_filename, input_arr, target_length, val=0, dim=1):
     shp = input_arr.shape
+    # print("Shape for "+str(mesh_filename)+" is "+str(shp))
     # print(shp)
     if dim==1:
         if shp[dim]>target_length:
