@@ -60,11 +60,11 @@ def from_scratch(file, opt):
     mesh_data.vs, faces = fill_from_file(mesh_data, file)
     mesh_data.v_mask = np.ones(len(mesh_data.vs), dtype=bool)
     faces, face_areas = remove_non_manifolds(mesh_data, faces)
-    if opt.num_aug > 1:
-        faces = augmentation(mesh_data, opt, faces)
+    # if opt.num_aug > 1:
+    #     faces = augmentation(mesh_data, opt, faces)
     build_gemm(mesh_data, faces, face_areas)
-    if opt.num_aug > 1:
-        post_augmentation(mesh_data, opt)
+    # if opt.num_aug > 1:
+    #     post_augmentation(mesh_data, opt)
     mesh_data.features = extract_features(mesh_data)
     return mesh_data
 
@@ -166,6 +166,18 @@ def fill_from_file(mesh, file):
             print(list_of_unused_vertices)
             print("############################")
             sys.exit()
+    #write file for debugging purposes
+    # output_folder = 'ModelNet_debug/'
+    # output_path = output_folder+mesh.filename
+    # os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # with open(output_path, 'w') as f:
+    #     f.write('OFF\n')
+    #     f.write(str(vs.shape[0])+' '+str(faces.shape[0])+' 0\n')
+    #     for i in range(vs.shape[0]):
+    #         f.write(str(vs[i][0])+' '+str(vs[i][1])+' '+str(vs[i][2])+'\n')
+    #     for i in range(faces.shape[0]):
+    #         f.write('3 '+str(faces[i][0])+' '+str(faces[i][1])+' '+str(faces[i][2])+'\n')
+    # f.close()
 
 
     # list_of_used_vertices_1, list_of_unused_vertices_1 = find_used_unused_vertices(vs,faces)
@@ -211,6 +223,7 @@ def build_gemm(mesh, faces, face_areas):
     sides: array (#E x 4) indices (values of: 0,1,2,3) indicating where an edge is in the gemm_edge entry of the 4 neighboring edges
     for example edge i -> gemm_edges[gemm_edges[i], sides[i]] == [i, i, i, i]
     """
+
     mesh.ve = [[] for _ in mesh.vs]
     edge_nb = []
     sides = []
@@ -251,6 +264,15 @@ def build_gemm(mesh, faces, face_areas):
     mesh.sides = np.array(sides, dtype=np.int64)
     mesh.edges_count = edges_count
     mesh.edge_areas = np.array(mesh.edge_areas, dtype=np.float32) / np.sum(face_areas) #todo whats the difference between edge_areas and edge_lenghts?
+    # if mesh.filename=='chair_0382.off':
+    #     with open('debug_empty_list/' + mesh.filename + '1', 'w') as f:
+    #         for i in range((mesh.vs.shape[0])):
+    #             f.write(str(mesh.vs[i][0])+' '+str(mesh.vs[i][1])+' '+str(mesh.vs[i][2])+'\n')
+    #         for i in range((faces.shape[0])):
+    #             f.write('3 '+str(faces[i][0])+' '+str(faces[i][1])+' '+str(faces[i][2])+'\n')
+    #         for i in range(len(mesh.ve)):
+    #             f.write(str((mesh.ve[i])) + '\n')
+    #     f.close()
 
 
 def compute_face_normals_and_areas(mesh, faces):
@@ -288,12 +310,13 @@ def slide_verts(mesh, prct):
         if shifted < target:
             edges = mesh.ve[vi]
             if edges ==[]:
+                print('empty list encountered')
                 print(len(mesh.ve))
-                print((mesh.ve[0]))
+                print(vi)
                 print((dihedral.shape))
-                print(len(mesh.vs))
                 print(mesh.filename)
                 print(mesh.edges_count)
+                # print(mesh.ve)
             if min(dihedral[edges]) > 2.65:
                 edge = mesh.edges[np.random.choice(edges)]
                 vi_t = edge[1] if vi == edge[0] else edge[0]

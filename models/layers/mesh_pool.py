@@ -47,6 +47,12 @@ class MeshPool(nn.Module):
         mask = np.ones(mesh.edges_count, dtype=np.bool)
         edge_groups = MeshUnion(mesh.edges_count, self.__fe.device)
         while mesh.edges_count > self.__out_target:
+            if len(queue) < 1:
+                print('heap empty')
+                print(mesh.filename)
+                print(mesh.edges_count)
+                print(self.__out_target)
+                print('##################')
             value, edge_id = heappop(queue)
             edge_id = int(edge_id)
             if mask[edge_id]:
@@ -178,6 +184,11 @@ class MeshPool(nn.Module):
             MeshPool.__remove_group(mesh, edge_groups, edge_key)
         mesh.edges_count -= 3
         vertex = list(vertex)
+        if len(vertex)!=1:
+            print('vertex len not 1')
+            print(mesh.filename)
+            print(vertex)
+            print('##################')
         assert(len(vertex) == 1)
         mesh.remove_vertex(vertex[0])
 
