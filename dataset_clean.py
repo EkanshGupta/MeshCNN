@@ -51,7 +51,7 @@ def find_used_unused_vertices(vs,faces):
     return list_of_used_vertices, list_of_unused_vertices
 
 def fill_from_file(file,write_dir):
-    global total_files_with_unused_vertices
+    global total_files_with_unused_vertices, path_prefix
     with open(file, 'r') as f:
         if 'OFF' != f.readline().strip():
             raise('Not a valid OFF header')
@@ -61,11 +61,17 @@ def fill_from_file(file,write_dir):
     vs = np.asarray(vs)
     faces = np.asarray(faces, dtype=int)
 
-    if vs.shape[0] < 500 and vs.shape[0] > 200 and faces.shape[0] > 200 and faces.shape[0] < 600:
-        with open('mesh_info.txt', 'a') as f:
+    #if vs.shape[0] < 500 and vs.shape[0] > 200 and faces.shape[0] > 200 and faces.shape[0] < 600:
+    #    with open('mesh_info.txt', 'a') as f:
+    #        f.write(file+' vertices and faces '+str(vs.shape)+' '+str(faces.shape)+'\n')
+    #    f.close()
+    #return
+    
+    if vs.shape[0]>10000 or faces.shape[0] > 10000:
+        with open('mesh_info_ignored_files.txt', 'a') as f:
             f.write(file+' vertices and faces '+str(vs.shape)+' '+str(faces.shape)+'\n')
         f.close()
-    return
+        return
 
     face_normals, face_areas = get_face_areas_and_normals(vs,faces)
     remove_faces = [ind for ind, face_area in enumerate(face_areas) if face_area == 0]
@@ -120,7 +126,7 @@ def find_file_addr():
         # print(filelist[i])
         print(str(i)+' of '+str(len(filelist)))
         fill_from_file(filelist[i],write_dir)
-    print('total files with unused vertices: '+total_files_with_unused_vertices)
+    print('total files with unused vertices: '+str(total_files_with_unused_vertices))
 
 def main():
     find_file_addr()
