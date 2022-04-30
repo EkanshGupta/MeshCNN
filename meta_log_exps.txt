@@ -1,0 +1,14 @@
+Baseline - after 200 epochs, test accuracy 64.167 %
+pretrained model test accuracy is 99.167 %
+gonna see why tensorboard is not working
+
+report - write about meshcnn on modelNet
+generate dataset
+
+exp1: baseline with default params for 200 epochs. file: meshcnn_baseline_200epochs
+exp2: changing pooling edges to 600,500,300,150. gives heappop error
+exp2.5: changing ncf values to 64,128,192,256. gives heappop error
+exp3: running with params in the paper. file: meshcnn_exp3_200epochs
+exp4: changing lr to 0.001 with other params same as exp1. file: meshcnn_exp4_200epochs
+exp5: changing ncf to 16,32,64,128 and rest same as paper params. gives heappop error at epoch 40
+

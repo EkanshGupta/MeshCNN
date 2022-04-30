@@ -7,3 +7,7 @@
 checkpoints
 datasets
 runs
+backup_datasets
+debug_empty_list
+ModelNet10_micro
+ModelNet_debug

@@ -1,0 +1,86 @@
+DG CNN on SHREC 16: Junaid + Matan
+Testing acc on new dataset (SHREC 16) - baseline
+Tweaking k (for k-NN)
+Choice of aggregation function
+Structure of edgeconv function (h)
+[different num of layers, or different layer sizes, different pooling types, different dropouts]
+Can compare how the changes we do vs the studies they've done (their hyper-parameter tuning on ModelNet40)
+Number of points we use per mesh (which has to be constant for all input meshes in DG CNN)
+Data already has only 250 points, so we can try downsampling (easy) or upsampling (harder)
+Secondary expts:
+Speed up the process as mentioned in the paper under future work
+Optimizer/batch size tuning
+Mesh CNN on SHREC 16: Ekansh
+Baseline
+Tweaking hyperparameters (network structure, optimizer etc; similar to above DG CNN list)
+This study is a new contribution
+Types of pooling used etc
+
+TODO:
+script for graphs
+more scenarios and LR plateau
+write report
+generate dataset
+
+Baseline - after 200 epochs, test accuracy 64.167 %
+pretrained model test accuracy is 99.167 %
+gonna see why tensorboard is not working
+
+report - write about meshcnn on modelNet
+generate dataset
+
+exp1: baseline with default params for 200 epochs. file: meshcnn_baseline_200epochs
+default params: 64,128,256,256 and 600 450 300 180 and LR 0.0002
+    exp2: changing pooling edges to 600,500,300,150. gives heappop error
+    exp2.5: changing ncf values to 64,128,192,256. gives heappop error
+    exp3: running with params in the paper. file: meshcnn_exp3_200epochs
+exp4: changing lr to 0.001 with other params same as exp1. file: meshcnn_exp4_200epochs 64, 128, 256, 256 [600, 450, 300, 180]
+    exp5: changing ncf to 16,32,64,128 and rest same as paper params. gives heappop error at epoch 40
+exp6: changing ncf to 16,32,64,128 and pool edges to 600,450,300,150 LR 0.0002 with all other params same. accuracy around 95%
+
+running meshcnn on modelNet
+
+modifying the code for off
+
+zero areas in faces -> remove faces with zero areas
+
+padding error -> added code to clip features with dimension more than ninput_edges (edge features)
+
+unused vertices -> added code for removing unused vertices and remapping vertex numbers in faces
+
+latest error -> heappop index out of range
+
+-> creating clean dataset
+
+current issues with dataset -> duplicate vertices, needs cleaning
+
+We start with modifying the dataloader for meshcnn to handle .off files present in ModelNet in addition to the default .obj files in shrec16 dataset.
+While all the files present in shrec16 dataset contains well-curated meshes with about 250 vertices and 500 faces, the files in the ModelNet10 and ModelNet40 datasets are extremely divergent ranging from files
+that contain about 200 faces and vertices each to files that contain well over 500,000 vertices and faces. The ModelNet dataset files also contained faces that contained co-linear points, resulting in a zero-area face,
+a situation that meshcnn is not written to handle. We added a pre-processing block in the dataloader which removed all the faces with zero area and fed the resultant abridged mesh to the feature generator.
+
+The next problem we encountered was in the padding utility function which makes sure that the input feature vector has
+exactly 'ninput_edges' features. It did so by padding incoming feature vectors with less than 'ninput_edges'. However,
+it did not handle the scenario when the feature vector contained more than 'ninput_edges' features. We modified the code
+ to handle this scenario.
+
+The Modelnet dataset also contained files where some vertices had no edges associated with them. The MeshCNN code builds a list of vertices with their corresponding edges
+which it uses to slide vertices in the pre-training processing. The code was not written to handle meshes with unused vertices. We added another step in our pre-processing
+where we remove all unused vertices and then re-enumerate vertices to maintain proper mesh structure (for instance, if a face contains vertices 1,5, and 8 in a mesh
+containing 10 vertices where only the 2nd vertex is unused, then after removing the unused vertex and re-enumerating, the face will contain vertices 1,4, and 7).
+
+However, even after cleaning the files by removing unused vertices, the code encountered a run-time exception during training in the mesh-pooling phase where
+one of the heaps used became empty. The error was identical to the one we encountered when we changed some of the model's parameters during one of our experiments.
+The cause of this error was non-trivial to us which led us to cease our attempts at adapting MeshCNN to the ModelNet dataset.
+
+Creating a cleaner ModelNet dataset
+
+Impelled by our observations about issues present inside the ModelNet dataset, we created a cleaner version of this dataset where we removed faces with zero areas,
+removed unused vertices, and re-enumerated the vertices inside the faces. We worked on an alternative to removing faces with zero-areas that was adding a miniscule
+perturbation to each of the 3 colinear points, however, seeing that this could potentially reshape some of the existing geometry inside the mesh, we decided to 
+altogether remove the zero-area faces (not the corresponding vertices however). As a start, we only cleaned the files with less than 10,000 vertices and faces.
+This was done owing to the sizeable processing time associated with larger files and given the valuable time of our compute resources. However, we will update
+the dataset to include all the files present in the dataset in the course of time.
+
+Even after cleaning, the dataset still suffers from the problem of duplicate vertices where multiple different vertices contain the exact permutation of points as
+one another. To make the dataset completely redundancy-free, this aspect needs to be taken care of as well.
