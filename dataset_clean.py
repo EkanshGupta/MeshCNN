@@ -67,7 +67,7 @@ def fill_from_file(file,write_dir):
     #    f.close()
     #return
     
-    if vs.shape[0]>10000 or faces.shape[0] > 10000:
+    if vs.shape[0]>20000 and faces.shape[0]>20000:
         with open('mesh_info_ignored_files.txt', 'a') as f:
             f.write(file+' vertices and faces '+str(vs.shape)+' '+str(faces.shape)+'\n')
         f.close()
